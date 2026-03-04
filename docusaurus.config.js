@@ -95,7 +95,7 @@ const config = {
   staticDirectories: ["static"],
   i18n: {
     defaultLocale: "en",
-    locales: ["en", "es"],
+    locales: ["en"],
   },
   customFields: {
     startButtonTitle: `${startButtonTitle}`,
@@ -125,7 +125,7 @@ const config = {
     [
       require.resolve("docusaurus-lunr-search"),
       {
-        languages: ["es", "en"], // language codes
+        languages: ["en"],
       },
     ],
   ],
@@ -138,14 +138,6 @@ const config = {
           hideable: true,
         },
       },
-      announcementBar: {
-        id: "feedback_form",
-        content:
-          'This is a demonstration that we can put a pop-up message here! Even <a target="_blank" rel="noopener noreferrer" href="#">links</a>',
-        backgroundColor: "#fafbfc",
-        textColor: "#091E42",
-        isCloseable: true,
-      },
       navbar: {
         title: `${title}`,
         logo: {
@@ -156,12 +148,7 @@ const config = {
           width: "135px",
           height: "100%",
         },
-        items: [
-          {
-            type: "localeDropdown",
-            position: "right",
-          },
-        ],
+        items: [],
       },
       footer: {
         style: "dark",
