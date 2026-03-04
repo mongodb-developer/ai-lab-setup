@@ -1,0 +1,133 @@
+# .github/workflows/propagate-config.yml  
+# This workflow keeps repos in sync
+name: Propagate Config File  
+  
+on:  
+  push:  
+    branches:  
+      - main  
+    paths:  
+      - package.json  # Adjust as needed  
+  workflow_dispatch: {}  
+  
+jobs:  
+  propagate:  
+    runs-on: ubuntu-latest  
+    steps:  
+      - name: Checkout source repo  
+        uses: actions/checkout@v4  
+
+      # Install jq  
+      - name: Install jq  
+        run: sudo apt-get update && sudo apt-get install -y jq 
+      
+      - name: Set up Git  
+        run: |  
+          git config --global user.name "GitHub Docusaurus Automation"  
+          git config --global user.email "actions@github.com"  
+  
+      - name: Sync config to target repos  
+        env:  
+          # This is a personal token with repo access (to be able to create PRs)
+          GH_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}  
+        run: |  
+          set -e  
+
+          # List of PRs created
+          pr_links=()
+          
+          # Repos to be synced. Add only the organization and repo name, comma separated
+          TARGET_REPOS="mongodb-developer/intro-lab,mongodb-developer/aggregation-pipeline-lab,mongodb-developer/search-lab,mongodb-developer/relational-migrator-lab,mongodb-developer/sql-to-query-api-lab,mongodb-developer/ai-rag-lab,mongodb-developer/ai-agents-lab,mongodb-developer/vector-search-lab,mongodb-developer/security-basics-lab"
+          BODY="This is an Automated update from https://github.com/mongodb-developer/docusaurus-workshop. 
+          We have updated the dependencies in \`package.json\` to get the latest Docusaurus (and plugin) versions. We've also updated \`docusaurus.config.js\` if needed.
+          
+          Please __pull the changes locally and test them before accepting the PR__. To do so, `cd` to your local repo and run:
+          
+          \`git pull origin && git checkout {branch_name} && npm run clear && rm -rf node_modules && npm install && npm run build && npm run serve\`
+
+          Thanks!  
+          "  
+          IFS=',' read -ra REPOS <<< "$TARGET_REPOS"  
+          for repo in "${REPOS[@]}"  
+          do  
+            echo "💻 Processing $repo..."  
+            git clone "https://x-access-token:${GH_TOKEN}@github.com/${repo}.git" targetrepo  
+            # pre-commit husky rules will trigger a full rebuild that we already do
+            rm -rf targetrepo/.husky
+            
+            SOURCE=package.json  
+            DEST=targetrepo/package.json  
+            TMP=tmp_package.json  
+
+            echo "--------------------------------------"
+            echo "[1] update package.json and config"
+            echo "--------------------------------------"
+
+            # copy from package.json just dependencies and devDependencies objects
+            jq --slurpfile src "$SOURCE" '  
+              .dependencies = $src[0].dependencies // {} |  
+              .devDependencies = $src[0].devDependencies // {} |
+              .engines = $src[0].engines // {} 
+            ' "$DEST" > "$TMP" && mv "$TMP" "$DEST"  
+
+
+            # copy from docusaurus.config.js just the future object, using Node and traversing the AST
+            npm install --silent recast @babel/parser  
+            node .github/update-docusaurus-config.js
+
+            cd targetrepo
+            
+            # generate package-lock.json
+            echo "--------------------------------------"
+            echo "[2] Installing packages generate package-lock.json"
+            echo "--------------------------------------"
+
+            rm package-lock.json
+            npm i --silent
+            
+            echo "--------------------------------------"
+            echo "[3] Testing that Docusaurus builds fine"
+            echo "--------------------------------------"
+            
+            npm run build
+
+            echo "--------------------------------------"
+            echo "[4] GIT STATUS"
+            echo "--------------------------------------"
+            
+            git status
+
+            echo "--------------------------------------"
+            echo "[5] Create branch and commit changes"
+            echo "--------------------------------------"
+
+            BRANCH_NAME=update-config-$(date +%Y%m%d%H%M%S)  
+            git checkout -b "$BRANCH_NAME"  
+            git add package.json package-lock.json docusaurus.config.js
+            git commit -m "Sync config files from source-repo"  
+            git push origin "$BRANCH_NAME"  
+
+            echo "--------------------------------------"
+            echo "[6] Create PR in target repo"
+            echo "--------------------------------------"
+
+            gh pr create --title "Sync config files from main Docusaurus repo" --body "$BODY" --base main  
+            pr_links+=("$0")
+            cd ..  
+            rm -rf targetrepo  
+          done  
+
+          # Extract version number and push new tag
+          TAG="v$(jq -r .version package.json)"  
+          if gh release view "$TAG" > /dev/null 2>&1; then  
+            echo "Release $TAG already exists. Skipping."  
+          else  
+            echo "Creating release $TAG ..."  
+            gh release create "$TAG" --generate-notes  
+          fi  
+
+          # print out all generated PRs 
+          echo "PR Links:"
+          for link in "${pr_links[@]}"; do
+              echo "$link"
+          done
