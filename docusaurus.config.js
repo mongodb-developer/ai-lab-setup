@@ -4,14 +4,14 @@
 // Change here to customise config
 
 // Name of the Github Repo, it's also teh baseUrl
-const workshopName = 'docusaurus-workshop';
+const workshopName = 'ai-lab-setup';
 // Change this if hosting outside mongodb-developer
 const organizationName = "mongodb-developer";
 
 // Main page config
-const title = "Docusaurus Meta Workshop";
-const tagLine = "A Workshop written in Docusaurus to teach you how to write Workshops using docusaurus";
-const startButtonTitle = "Enter Inception";
+const title = "AI Labs Setup Guide";
+const tagLine = "Get setup for our AI labs!";
+const startButtonTitle = "Start";
 const favicon = "img/favicon.svg"
 
 // Main Page Features
@@ -41,8 +41,8 @@ const featureList = [
 
 // UTM stuff
 
-const utmAdvocateName = `diego.freniche`;
-const utmWorkshopName = 'docusaurus_workshop'
+const utmAdvocateName = `apoorva.joshi`;
+const utmWorkshopName = 'ai_lab_setup'
 
 const utmParams = `utm_campaign=devrel&utm_source=workshop&utm_medium=cta&utm_content=${utmWorkshopName}&utm_term=${utmAdvocateName}`;
 
@@ -54,12 +54,16 @@ const footerLinks = [
     href: `https://www.mongodb.com/try?${utmParams}`,
   },
   {
-    label: "Forums",
-    href: `https://www.mongodb.com/community/forums?${utmParams}`,
+    label: "MongoDB Developer Blog",
+    href: `https://www.mongodb.com/company/blog/channel/developer-blog?${utmParams}`,
   },
   {
-    label: 'Skill Badges',
-    href: `https://learn.mongodb.com/skills?team=devrel&${utmParams}`,
+    label: "GenAI Code Examples",
+    href: `https://github.com/mongodb-developer/GenAI-Showcase`,
+  },
+  {
+    label: "MongoDB University",
+    href: `https://learn.mongodb.com?${utmParams}`,
   },
   {
     href: `https://github.com/${organizationName}/${workshopName}`,

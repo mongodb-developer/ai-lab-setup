@@ -1,0 +1,50 @@
+# 👐 Setup prerequisites
+
+If you're at a MongoDB Developer Day, at the beginning of each lab, set the passkey provided by your workshop instructor, and run the cells under the **Step 1: Setup prerequisites** section in the lab notebook.
+
+This will get you set up with all the API keys required to run the labs.
+
+:::caution
+### Expired passkey OR don't have a passkey
+
+The passkeys are valid for 3 days after the Developer Day. Once the passkey expires, or if you weren't at a MongoDB Developer Day recently, you will need to obtain your own API keys based on the labs you are working on:
+
+#### Voyage AI
+Required by: All labs
+
+* Follow the steps here to [obtain a Voyage AI API key](https://docs.voyageai.com/docs/api-key-and-installation#authentication-with-api-keys).
+* Set the `VOYAGE_API_KEY` environment variable in the notebook as follows:
+
+```python
+os.environ["VOYAGE_API_KEY"] = "your-voyageai-api-key"
+```
+
+#### Gemini
+Required by: The A to Z of Building AI Agents
+
+* Set the LLM_PROVIDER variable in Step 1 to "google"
+* Obtain a Gemini API key from [here](https://aistudio.google.com/app/apikey).
+* Set the `GOOGLE_API_KEY` environment variable in the notebook as follows:
+
+```python
+os.environ["GOOGLE_API_KEY"] = "your-google-api-key"
+```
+:::
+
+:::caution
+### If you are running the labs locally
+
+If you aren't using Instruqt or GitHub Codespaces to run the labs and are instead running them locally, you will need to do the following additional steps for all labs:
+
+* Spin up a free MongoDB Atlas cluster and obtain its connection string:
+
+    * Register for a [free MongoDB Atlas account](https://www.mongodb.com/cloud/atlas/register/?utm_campaign=devrel&utm_source=workshop&utm_medium=cta&utm_content=genai_devday&utm_term=apoorva.joshi) if you don't already have one
+    * [Create a new database cluster](https://www.mongodb.com/docs/guides/atlas/cluster)
+    * [Obtain the connection string](https://www.mongodb.com/docs/guides/atlas/connection-string) for your database cluster
+
+* Set the `MONGODB_URI` variable in the notebook as follows:
+
+```python
+MONGODB_URI = "your_connection_string"
+```
+:::
